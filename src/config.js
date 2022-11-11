@@ -5,16 +5,16 @@ export let masterPanelConfig ={
 
 switch (location.host) {
     case 'localhost:8080':
-        apiBaseUrl='http://192.168.100.9:5000';
+        masterPanelConfig.apiBaseUrl='http://192.168.100.9:5000';
       
       break;
  
   
     default:
   
-      apiBaseUrl = 'https://api.vliveindia.in';
+      masterPanelConfig.apiBaseUrl = 'https://api.vliveindia.in';
 
     
   }
 
-  apiBaseUrl = 'https://api.vliveindia.in' 
+  masterPanelConfig.apiBaseUrl = 'https://api.vliveindia.in' 

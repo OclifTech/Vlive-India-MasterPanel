@@ -4,24 +4,25 @@ import { masterPanelConfig } from "../../config";
 
 const AddBlog = () => {
   const [data, setData] = React.useState({
-    title : '',
-    subtitle : '',
-    desc : '',
+    title: "",
+    subtitle: "",
+    desc: "",
   });
 
-  const [img , setImg] = React.useState("");
+  const [img, setImg] = React.useState("");
+  const [buttonTrue, setButton] = React.useState(false);
 
   const onChange = (e) => {
-    setData({...data , [e.target.name]: e.target.value });
+    setData({ ...data, [e.target.name]: e.target.value });
   };
 
-  const onChangeFile = (e) =>{
-    setImg( e.target.files[0])
-  }
+  const onChangeFile = (e) => {
+    setImg(e.target.files[0]);
+  };
 
-
-  const onSubmit = (e) =>{
+  const onSubmit = (e) => {
     e.preventDefault();
+    setButton(true);
     const bodyFormData = new FormData();
     bodyFormData.set("key", "67407366455a442e74ee89bf786b67d9");
     bodyFormData.append("image", img);
@@ -31,23 +32,32 @@ const AddBlog = () => {
       .then((res) => {
         console.log("res", res.data.data.url);
         const param = {
-            img :  res.data.data.url ,
-            title :data.title,
-            subtitle : data.subtitle,
-            desc : data.desc
+          img: res.data.data.url,
+          title: data.title,
+          subtitle: data.subtitle,
+          desc: data.desc,
         };
 
-        axios.post(`${masterPanelConfig.apiBaseUrl}/api/blog/newBlog` , param).then(res=>{
-            if(res){
-                alert("Blog SuccessFully Upload");
+        axios
+          .post(`${masterPanelConfig.apiBaseUrl}/api/blog/newBlog`, param)
+          .then((res) => {
+            if (res) {
+              alert("Blog Successfully Upload");
+              setData({
+                title: "",
+                subtitle: "",
+                desc: "",
+              });
+              setImg("");
+              setButton(false);
             }
-        })
-        .catch(err=>{
-            console.log(err.data.message);
-        })
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       })
       .catch((err) => {
-        console.log(err.data.message);
+        console.log(err);
       });
   };
 
@@ -64,6 +74,7 @@ const AddBlog = () => {
             id="uploadImage"
             aria-describedby="imageHelp"
             name="img"
+            required
             onChange={onChangeFile}
           />
         </div>
@@ -76,6 +87,7 @@ const AddBlog = () => {
             className="form-control"
             id="title"
             placeholder="Enter Blog Title"
+            required
             onChange={onChange}
             name="title"
           />
@@ -89,6 +101,7 @@ const AddBlog = () => {
             className="form-control"
             id="subtitle"
             placeholder="Enter Blog Sub  Title"
+            required
             onChange={onChange}
             name="subtitle"
           />
@@ -102,14 +115,14 @@ const AddBlog = () => {
             className="form-control"
             id="description"
             placeholder="Enter Blog Description"
+            required
             onChange={onChange}
             name="desc"
-          >
-          </textarea>
+          ></textarea>
         </div>
 
-        <button type="submit" className="btn btn-primary">
-          Submit
+        <button type="submit" className="btn btn-primary" disabled={buttonTrue}>
+         {buttonTrue ?  "Submiting..." : "Add Blog"}
         </button>
       </form>
     </div>

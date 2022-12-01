@@ -1,7 +1,9 @@
 import axios from "axios";
 import React from "react";
 import { masterPanelConfig } from "../../config";
-import { Editor } from "@tinymce/tinymce-react";
+import JoditEditor from 'jodit-react';
+// import ReactQuill from "react-quill";
+// import "react-quill/dist/quill.snow.css";
 
 const AddBlog = () => {
   const [data, setData] = React.useState({
@@ -10,8 +12,9 @@ const AddBlog = () => {
   });
 
   const [img, setImg] = React.useState("");
-  const [buttonTrue, setButton] = React.useState(false);
   const [desc , setDesc] = React.useState("");
+  const [buttonTrue, setButton] = React.useState(false);
+  const editor = React.useRef(null);
 
   const onChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
@@ -21,9 +24,11 @@ const AddBlog = () => {
     setImg(e.target.files[0]);
   };
 
-  const onChaneDesc = (desc) =>{
-      setDesc(desc);
+  const onDescChange = (newDesc) =>{
+    setDesc(newDesc);
   }
+
+
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -35,19 +40,17 @@ const AddBlog = () => {
     axios
       .post("https://api.imgbb.com/1/upload", bodyFormData)
       .then((res) => {
-        console.log("res", res.data.data.url);
         const param = {
           img: res.data.data.url,
           title: data.title,
           subtitle: data.subtitle,
           desc: desc,
         };
-
         axios
           .post(`${masterPanelConfig.apiBaseUrl}/api/blog/newBlog`, param)
           .then((res) => {
             if (res) {
-              alert("Blog Successfully Upload");
+              alert("Blog Successfully Uploaded");
               setData({
                 title: "",
                 subtitle: "",
@@ -60,10 +63,12 @@ const AddBlog = () => {
           })
           .catch((err) => {
             console.log(err);
+            setButton(false);
           });
       })
       .catch((err) => {
         console.log(err);
+        setButton(false);
       });
   };
 
@@ -80,6 +85,7 @@ const AddBlog = () => {
             id="uploadImage"
             aria-describedby="imageHelp"
             name="img"
+            value={data.value}
             required
             onChange={onChangeFile}
           />
@@ -96,6 +102,7 @@ const AddBlog = () => {
             required
             onChange={onChange}
             name="title"
+            value={data.title}
           />
         </div>
         <div className="mb-3 form-group">
@@ -107,6 +114,7 @@ const AddBlog = () => {
             className="form-control"
             id="subtitle"
             placeholder="Enter Blog Sub  Title"
+            value={data.value}
             required
             onChange={onChange}
             name="subtitle"
@@ -116,30 +124,15 @@ const AddBlog = () => {
           <label htmlFor="description" className="form-label">
             Description
           </label>
-          <Editor
-            initialValue="Enter Blog Description"
-            onEditorChange={(newText)=>{onChaneDesc(newText)}}
-            textareaName="desc"
-            
-            init={{
-              height: 400,
-              width : "100%",
-              menubar: false,
-              plugins: [
-                'a11ychecker','advlist','advcode','advtable','autolink','checklist','export',
-                'lists','link','image','charmap','preview','anchor','searchreplace','visualblocks',
-                'powerpaste','fullscreen','formatpainter','insertdatetime','media','table','help','wordcount'
-             ],
-             toolbar: 'undo redo | casechange blocks | bold italic backcolor | ' +
-                'alignleft aligncenter alignright alignjustify | ' +
-                'bullist numlist checklist outdent indent | removeformat | a11ycheck code table help',
-              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-            }}
+          <JoditEditor
+            ref={editor}
+            value={desc}
+            onChange={onDescChange}
           />
         </div>
 
         <button type="submit" className="btn btn-primary" disabled={buttonTrue}>
-         {buttonTrue ?  "Submiting..." : "Add Blog"}
+          {buttonTrue ? "Submiting..." : "Add Blog"}
         </button>
       </form>
     </div>
